@@ -16,7 +16,8 @@ treePointer delFun(treePointer, int);
 void query(treePointer, int);
 void maxSum(treePointer, int, int);
 
-int Spreorder(treePointer, int, int);
+
+treePointer findLeftMax(treePointer);
 
 
 
@@ -160,20 +161,76 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 	now = head;
 	
 	while(1){
-		if(now == head && now->data == number){
+		
+		if(now == NULL){	//找不到 
+			break;
+		}
+		
+		if(now == head && now->data == number){		//刪除的是head 
+		
+			if(now->left != NULL){
+				treePointer left_max = (treePointer)malloc(sizeof(struct treeNode));	//建立left_max
+				left_max = findLeftMax(now->left);	//找左邊最大的上一個 
+				if(left_max->right != NULL){		//那個節點是leaf
+					if(left_max->right->left != NULL){
+						treePointer temp = (treePointer)malloc(sizeof(struct treeNode));
+						temp = left_max->right;
+						temp->left = head->left;
+						temp->right = head->right;
+						left_max->right = left_max->right->left;
+						head = temp;
+						
+						return head;
+					}
+					else{
+						left_max->right->left = head->left;
+						left_max->right->right = head->right;
+						head = left_max->right;
+						return head;
+					} 
+					
+				}
+				else{
+					if(left_max->left != NULL){
+						//這邊沒有想完善 
+						treePointer temp = (treePointer)malloc(sizeof(struct treeNode));
+						temp = left_max;
+						temp->left = head->left;
+						temp->right = head->right;
+						left_max->right = left_max->right->left;
+						head = temp;
+						
+						return head;
+					}
+					
+				} 
+			}
+			else{	//只有right
+				head = now->right;
+				return head;
+				
+			}
+			
+			
 			
 		}
-		else if(now->data == number){
+		else if(now->data == number){		//刪除中間節點 
 			
 		}
 		
+		else if(number > now->data){
+			now = now->right;
+		}
+		
+		else if(number < now->data){
+			now = now->left;
+		}
 		
 		
 	}
 	
 	
-	
-	return now;
+	return head;
 	
 	
 } 
@@ -190,6 +247,15 @@ void maxSum(treePointer head, int number1, int number2){	//最大和
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	now = head;
 	
+}
+
+
+treePointer findLeftMax(treePointer now){	//找左邊最大的上一個 
+	while(now->right->right != NULL){
+		now = now->right;
+	}
+	
+	return now;
 }
 
 
