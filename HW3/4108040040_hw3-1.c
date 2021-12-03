@@ -18,6 +18,7 @@ void maxSum(treePointer, int, int);
 
 
 treePointer findLeftMax(treePointer);
+treePointer findRightMax(treePointer);
 
 
 
@@ -54,7 +55,7 @@ int main(){
 			head = init(head, number);
 			
 		}
-		preorder(head);  //test print initial tree
+		//preorder(head);  //test print initial tree
 		
 		//讀入command並執行
 		char com;
@@ -66,12 +67,18 @@ int main(){
 				
 				fscanf(fp, "%d", &number1);
 				insert(head, number1);
-
+				
+				printf("head = %d\n", head->data);
+				
 			}
 			else if(com == 'D'){	//刪除節點 
 				
 				fscanf(fp, "%d", &number1);
-				delFun(head, number1);
+				
+				head = delFun(head, number1);
+				preorder(head);
+				
+				
 			}
 			else if(com == 'Q'){	//查詢節點 
 				
@@ -87,12 +94,7 @@ int main(){
 			
 		} 
 		
-		 
-		
-		
 	}
-	
-	
 	
 	
 	system("pause");
@@ -106,6 +108,7 @@ treePointer init(treePointer head, int number){
 	newNode->data = number;
 	newNode->left = NULL;
 	newNode->right = NULL;
+	
 		 
 	if(head == NULL){	//第一點為root 
 		head = newNode;
@@ -150,13 +153,13 @@ treePointer init(treePointer head, int number){
 /*command function*/
 void insert(treePointer head, int number){	//加入節點 
 	printf("This is I command\n");
-	init(head, number);
-	preorder(head);
+	head = init(head, number);
+	
 }
 
 treePointer delFun(treePointer head, int number){	//刪除節點 
 	printf("This is D command\n");
-	
+	printf("head = %d\n", head->data);
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	now = head;
 	
@@ -165,56 +168,60 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 		if(now == NULL){	//找不到 
 			break;
 		}
-		
-		if(now == head && now->data == number){		//刪除的是head 
-		
-			if(now->left != NULL){
+		if(now->data == number){
+			
+			
+			if(now->left != NULL){	//找left_max
 				treePointer left_max = (treePointer)malloc(sizeof(struct treeNode));	//建立left_max
 				left_max = findLeftMax(now->left);	//找左邊最大的上一個 
-				if(left_max->right != NULL){		//那個節點是leaf
-					if(left_max->right->left != NULL){
-						treePointer temp = (treePointer)malloc(sizeof(struct treeNode));
-						temp = left_max->right;
-						temp->left = head->left;
-						temp->right = head->right;
-						left_max->right = left_max->right->left;
-						head = temp;
-						
-						return head;
-					}
-					else{
-						left_max->right->left = head->left;
-						left_max->right->right = head->right;
-						head = left_max->right;
-						return head;
-					} 
+				
+				
+				if(left_max->right != NULL){
+					
+					now->data = left_max->right->data;	//搬移值
+					left_max->right = left_max->right->left;
+						 
+					return head;
 					
 				}
-				else{
-					if(left_max->left != NULL){
-						//這邊沒有想完善 
-						treePointer temp = (treePointer)malloc(sizeof(struct treeNode));
-						temp = left_max;
-						temp->left = head->left;
-						temp->right = head->right;
-						left_max->right = left_max->right->left;
-						head = temp;
+				else{	//如果只是找到自己(now->left) 
+					now->data = left_max->data;
+					now->left = left_max->left;
 						
-						return head;
-					}
+					return head;
 					
 				} 
-			}
-			else{	//只有right
-				head = now->right;
-				return head;
 				
 			}
-			
-			
-			
-		}
-		else if(now->data == number){		//刪除中間節點 
+			else{	//now->left == NULL
+				
+				if(now->right != NULL){
+					
+					treePointer right_max = (treePointer)malloc(sizeof(struct treeNode));	//建立left_max
+					right_max = findRightMax(now->right);	//找右邊最小的上一個 
+					
+					if(right_max->left != NULL){		
+						
+						now->data = right_max->left->data;	//搬移值
+						right_max->left = right_max->left->right;
+						
+						return head;
+						
+					}
+					else{	//如果只是找到自己(now->right) 
+						now->data = right_max->data;
+						now->right = right_max->right;
+							
+						return head;
+						
+					} 
+					
+					return head;
+				}
+				else{
+					now = NULL;		//刪自己就好 
+				}
+			}
 			
 		}
 		
@@ -226,12 +233,9 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 			now = now->left;
 		}
 		
-		
 	}
 	
-	
 	return head;
-	
 	
 } 
 
@@ -251,8 +255,21 @@ void maxSum(treePointer head, int number1, int number2){	//最大和
 
 
 treePointer findLeftMax(treePointer now){	//找左邊最大的上一個 
-	while(now->right->right != NULL){
-		now = now->right;
+	
+	if(now->right != NULL){
+		while(now->right->right != NULL){
+			now = now->right;
+		}
+	}
+	
+	return now;
+}
+treePointer findRightMax(treePointer now){	//找左邊最大的上一個 
+	
+	if(now->left != NULL){
+		while(now->left->left != NULL){
+			now = now->left;
+		}
 	}
 	
 	return now;
@@ -268,4 +285,5 @@ void preorder(treePointer now){
 		preorder(now->right);
 		
 	}
+	
 }
