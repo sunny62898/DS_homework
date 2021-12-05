@@ -8,7 +8,7 @@ typedef struct treeNode{
 	treePointer right;
 };
 
-treePointer init(treePointer, int);
+treePointer inittree(treePointer, int);
 void preorder(treePointer);
 
 void insert(treePointer, int);
@@ -52,7 +52,7 @@ int main(){
 		for(i = 0;i < initialNode;i++){
 			fscanf(fp, "%d", &number);	//讀tree data
 			
-			head = init(head, number);
+			head = inittree(head, number);
 			
 		}
 		//preorder(head);  //test print initial tree
@@ -63,12 +63,17 @@ int main(){
 		for(i = 0;i < comNum;i++){
 			fscanf(fp, "%c", &com);
 			
+			if(com == '\n'){	//讀掉多餘的換行 
+				i--;
+				continue;
+			}
+			
 			if(com == 'I'){		//加入節點 
 				
 				fscanf(fp, "%d", &number1);
 				insert(head, number1);
 				
-				printf("head = %d\n", head->data);
+				
 				
 			}
 			else if(com == 'D'){	//刪除節點 
@@ -84,15 +89,19 @@ int main(){
 				
 				fscanf(fp, "%d", &number1);
 				query(head, number1);
+				
 			}
 			else if(com == 'P'){	//最大和 
 				
 				fscanf(fp, "%d", &number1);
 				fscanf(fp, "%d", &number2);
 				maxSum(head, number1, number2);
+				
 			}
 			
 		} 
+		
+		
 		
 	}
 	
@@ -101,7 +110,7 @@ int main(){
 	return 0;
 }
 
-treePointer init(treePointer head, int number){
+treePointer inittree(treePointer head, int number){
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	
 	treePointer newNode = (treePointer)malloc(sizeof(struct treeNode));	//建立新節點
@@ -146,6 +155,7 @@ treePointer init(treePointer head, int number){
 		
 	}
 	
+
 		 
 }
 
@@ -153,14 +163,17 @@ treePointer init(treePointer head, int number){
 /*command function*/
 void insert(treePointer head, int number){	//加入節點 
 	printf("This is I command\n");
-	head = init(head, number);
+	head = inittree(head, number);
 	
 }
 
 treePointer delFun(treePointer head, int number){	//刪除節點 
+
 	printf("This is D command\n");
 	printf("head = %d\n", head->data);
+	
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
+	
 	now = head;
 	
 	while(1){
@@ -242,6 +255,29 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 void query(treePointer head, int number){	//查詢節點 
 	printf("This is Q command\n");
 	
+	int depth = 1;
+	
+	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
+	now = head;
+	
+	while(now != NULL){
+		if(now->data == number){
+			printf("find = %d\n", now->data);
+			printf("depth = %d\n", depth);
+			break;
+		}
+		
+		else if(number > now->data){
+			depth++;
+			now = now->right;
+		}
+		else if(number < now->data){
+			depth++;
+			now = now->left;
+		}
+		
+	}
+	
 	
 	
 }
@@ -250,6 +286,26 @@ void maxSum(treePointer head, int number1, int number2){	//最大和
 	printf("This is P command\n");
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	now = head;
+	
+	int road1 = 0;
+	int road2 = 0;
+	
+	//如果同時大或同時小的話就將now一起往右移或左移
+	//如果一大一小就從那個now開始找 
+	
+	while(1){
+		
+		if(number1 < now->data && number2 < now->data){
+			now = now->left;
+		}
+		else if(number1 > now->data && number2 > now->data){
+			now = now->right;
+		}
+		
+		
+	}
+	
+	
 	
 }
 
@@ -264,6 +320,7 @@ treePointer findLeftMax(treePointer now){	//找左邊最大的上一個
 	
 	return now;
 }
+
 treePointer findRightMax(treePointer now){	//找左邊最大的上一個 
 	
 	if(now->left != NULL){
