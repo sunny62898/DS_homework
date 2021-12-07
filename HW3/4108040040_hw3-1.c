@@ -19,6 +19,7 @@ void maxSum(treePointer, int, int);
 
 treePointer findLeftMax(treePointer);
 treePointer findRightMax(treePointer);
+void search(treePointer, int, int);
 
 
 
@@ -31,8 +32,10 @@ int main(){
 	int initialNode, comNum;
 	
 	int i;
+	int times = 0;
 	
 	while(1){
+		
 		fscanf(fp, "%d", &initialNode);	//讀初始樹的節點數量 
 		fscanf(fp, "%d", &comNum);		//讀有幾個command
 		
@@ -40,7 +43,13 @@ int main(){
 			break;
 		}
 		
-		//printf("%d, %d\n", initialNode, comNum); 
+		/*寫入output*/
+		FILE *fout;
+		fout = fopen("output_1.txt", "a");  //開檔
+		times++;
+		fprintf(fout, "# %d\n", times);
+		fclose(fout);
+		
 		
 		treePointer head = (treePointer)malloc(sizeof(struct treeNode));	//建立head 
 		head = NULL;
@@ -61,6 +70,7 @@ int main(){
 		char com;
 		int number1, number2;
 		for(i = 0;i < comNum;i++){
+			
 			fscanf(fp, "%c", &com);
 			
 			if(com == '\n'){	//讀掉多餘的換行 
@@ -81,7 +91,7 @@ int main(){
 				fscanf(fp, "%d", &number1);
 				
 				head = delFun(head, number1);
-				preorder(head);
+				
 				
 				
 			}
@@ -95,6 +105,7 @@ int main(){
 				
 				fscanf(fp, "%d", &number1);
 				fscanf(fp, "%d", &number2);
+				//printf("max\n");
 				maxSum(head, number1, number2);
 				
 			}
@@ -104,6 +115,8 @@ int main(){
 		
 		
 	}
+	
+	fclose(fp);
 	
 	
 	system("pause");
@@ -162,15 +175,14 @@ treePointer inittree(treePointer head, int number){
 
 /*command function*/
 void insert(treePointer head, int number){	//加入節點 
-	printf("This is I command\n");
+	//printf("This is I command\n");
 	head = inittree(head, number);
 	
 }
 
 treePointer delFun(treePointer head, int number){	//刪除節點 
 
-	printf("This is D command\n");
-	printf("head = %d\n", head->data);
+	//printf("This is D command\n");
 	
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	
@@ -182,7 +194,6 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 			break;
 		}
 		if(now->data == number){
-			
 			
 			if(now->left != NULL){	//找left_max
 				treePointer left_max = (treePointer)malloc(sizeof(struct treeNode));	//建立left_max
@@ -229,10 +240,11 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 						
 					} 
 					
-					return head;
 				}
 				else{
-					now = NULL;		//刪自己就好 
+					now = NULL;		//刪自己就好
+					
+					return head; 
 				}
 			}
 			
@@ -253,7 +265,7 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 } 
 
 void query(treePointer head, int number){	//查詢節點 
-	printf("This is Q command\n");
+	//printf("This is Q command\n");
 	
 	int depth = 1;
 	
@@ -262,8 +274,13 @@ void query(treePointer head, int number){	//查詢節點
 	
 	while(now != NULL){
 		if(now->data == number){
-			printf("find = %d\n", now->data);
-			printf("depth = %d\n", depth);
+			/*寫入output*/
+			FILE *fout;
+			fout = fopen("output_1.txt", "a");  //開檔
+			fprintf(fout, "%d\n", depth);
+			
+			fclose(fout);
+			
 			break;
 		}
 		
@@ -283,25 +300,37 @@ void query(treePointer head, int number){	//查詢節點
 }
 
 void maxSum(treePointer head, int number1, int number2){	//最大和 
-	printf("This is P command\n");
+	//printf("This is P command\n");
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	now = head;
 	
-	int road1 = 0;
-	int road2 = 0;
+	
 	
 	//如果同時大或同時小的話就將now一起往右移或左移
 	//如果一大一小就從那個now開始找 
+	
+	if(number1 == number2){
+		return number1;
+	}
 	
 	while(1){
 		
 		if(number1 < now->data && number2 < now->data){
 			now = now->left;
 		}
+		
 		else if(number1 > now->data && number2 > now->data){
 			now = now->right;
 		}
 		
+		else{
+			search(now, number1, number2);
+			break;
+		}
+		
+		if(now == NULL){
+			break;
+		}
 		
 	}
 	
@@ -332,6 +361,88 @@ treePointer findRightMax(treePointer now){	//找左邊最大的上一個
 	return now;
 }
 
+
+void search(treePointer now, int num1, int num2){
+	
+	
+	treePointer now1 = (treePointer)malloc(sizeof(struct treeNode));
+	treePointer now2 = (treePointer)malloc(sizeof(struct treeNode));
+	
+	int road1 = 0;
+	int road2 = 0;
+	
+	int find1 = 0;
+	int find2 = 0;
+	
+	now1 = now;
+	now2 = now;
+	
+	
+	if(now->data > 0){
+		road1 = now->data;
+	}
+	
+	
+	
+	while(now1 != NULL){
+		if(num1 > now1->data){
+			now1 = now1->right;
+		}
+		else if(num1 < now1->data){
+			now1 = now1->left;
+		}
+		else{
+			find1 = 1;
+			break;
+		}
+		
+		if(now1 == NULL){
+			break;
+		}
+		
+		if(now1->data > 0){
+			road1 = road1 + now1->data;
+		}
+		
+	}
+
+	
+	while(now2 != NULL){
+		if(num2 > now2->data){
+			now2 = now2->right;
+		}
+		else if(num2 < now2->data){
+			now2 = now2->left;
+		}
+		else{
+			find2 = 1;
+			break;
+		}
+		
+		if(now2 == NULL){
+			break;
+		}
+		
+		if(now2->data > 0){
+			road2 = road2 + now2->data;
+		}
+		
+	}
+	
+	if(find1 == 1 && find2 == 1){
+		int sum = road1 + road2;
+		
+		/*寫入output*/
+		FILE *fout;
+		fout = fopen("output_1.txt", "a");  //開檔
+		fprintf(fout, "%d\n", sum);
+			
+		fclose(fout);
+		
+	}
+	
+	
+}
 
 
 //test print
