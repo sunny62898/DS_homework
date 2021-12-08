@@ -204,16 +204,12 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 					
 					now->data = left_max->right->data;	//搬移值
 					left_max->right = left_max->right->left;
-						 
-					return head;
 					
 				}
 				else{	//如果只是找到自己(now->left) 
 					now->data = left_max->data;
 					now->left = left_max->left;
 						
-					return head;
-					
 				} 
 				
 			}
@@ -229,14 +225,11 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 						now->data = right_max->left->data;	//搬移值
 						right_max->left = right_max->left->right;
 						
-						return head;
 						
 					}
 					else{	//如果只是找到自己(now->right) 
 						now->data = right_max->data;
 						now->right = right_max->right;
-							
-						return head;
 						
 					} 
 					
@@ -244,9 +237,10 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 				else{
 					now = NULL;		//刪自己就好
 					
-					return head; 
 				}
 			}
+			
+			return head; 
 			
 		}
 		
@@ -310,7 +304,15 @@ void maxSum(treePointer head, int number1, int number2){	//最大和
 	//如果一大一小就從那個now開始找 
 	
 	if(number1 == number2){
-		return number1;
+		
+		/*寫入output*/
+		FILE *fout;
+		fout = fopen("output_1.txt", "a");  //開檔
+		fprintf(fout, "%d\n", number1);
+			
+		fclose(fout);
+		
+		return;
 	}
 	
 	while(1){
