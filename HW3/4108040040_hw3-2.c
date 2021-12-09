@@ -43,6 +43,7 @@ int main(){
 		}
 		
 		head = NULL;
+		Snumber = 0;
 		
 		//讀入字元並形成初始linklist 
 		for(i = 0;i < col;i++){
@@ -62,11 +63,7 @@ int main(){
 			}
 		}
 		
-		//test print 
-		test_print(head);
-		
 		head = combine(head);
-		preorder(head);
 		
 		sum(head, 0);
 		printf("sum = %d\n", Snumber);
@@ -172,7 +169,6 @@ nodePointer combine(nodePointer head){
 void sum(nodePointer now, int num){
 	if(now != NULL){
 		if(now->word != NULL){
-			printf("sum = %c * %d\n", now->word, num);
 			Snumber = Snumber + (num * (now->times));
 		}
 		num++;
@@ -182,28 +178,6 @@ void sum(nodePointer now, int num){
 	}
 	
 }
-
-
-
-
-
-void test_print(nodePointer now){
-	while(now != NULL){
-		printf("%c\t%d\n", now->word, now->times);
-		now = now->next;
-	}
-}
-
-void preorder(nodePointer now){
-	if(now != NULL){
-		printf("%d\n", now->times);
-		preorder(now->left);
-		preorder(now->right);
-		
-	}
-	
-}
-
 
 
 
