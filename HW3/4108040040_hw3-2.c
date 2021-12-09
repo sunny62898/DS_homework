@@ -35,7 +35,7 @@ int main(){
 	while(1){
 		
 		fscanf(fp, "%d", &col);
-		printf("%d\n", col);
+		//printf("%d\n", col);
 		fscanf(fp, "%c", &ch);	//讀掉多的\n 
 		
 		if(col == 0){
@@ -66,7 +66,14 @@ int main(){
 		head = combine(head);
 		
 		sum(head, 0);
-		printf("sum = %d\n", Snumber);
+		//printf("sum = %d\n", Snumber);
+		
+		/*寫入output*/
+		FILE *fout;
+		fout = fopen("output_2.txt", "a");  //開檔
+		
+		fprintf(fout, "%d\n\n", Snumber);
+		fclose(fout);
 		
 		
 		
