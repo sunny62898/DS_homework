@@ -16,6 +16,8 @@ void preorder(treePointer);
 void paint(treePointer, int, int, char);
 void query(treePointer, int, int);
 
+char output[1000];
+int top;
 
 int main(){
 	
@@ -26,7 +28,7 @@ int main(){
 	fscanf(fp, "%d", &wallSize);
 	fscanf(fp, "%d", &comNum);
 	
-	printf("%d %d\n", wallSize, comNum);
+	//printf("%d %d\n", wallSize, comNum);
 	
 	treePointer head = NULL;
 	
@@ -36,7 +38,7 @@ int main(){
 	
 
 	
-	int i;
+	int i, j;
 	char ch;
 	int start, end;
 	char color;
@@ -54,11 +56,11 @@ int main(){
 			fscanf(fp, "%d", &end);
 			fscanf(fp, "%c", &ch);
 			fscanf(fp, "%c", &color);
-			printf("%d %d %c\n", start, end, color);
+			//printf("%d %d %c\n", start, end, color);
 			
 			paint(head, start, end, color);		//塗色 
 			
-			preorder(head);
+			//preorder(head);
 			
 		}
 		
@@ -66,9 +68,22 @@ int main(){
 			fscanf(fp, "%d", &start);
 			fscanf(fp, "%d", &end);
 			
-			printf("%d %d\n", start, end);
+			//printf("%d %d\n", start, end);
 			
+			top = 0;
 			query(head, start, end);	//查詢顏色 
+			
+			for(j = 0;j < top;j++){
+				if(j > 0){
+					if(output[j] != output[j-1]){
+						printf("%c ", output[j]);
+					}
+				}
+				else{
+					printf("%c ", output[j]);
+				}
+			}
+			printf("\n");
 		}
 		
 	}
@@ -96,7 +111,7 @@ treePointer init(int min, int max){
 	
 	if((max-min) > 1){
 		node->left = init(min, mid);
-		node->right = init(mid+1, max);
+		node->right = init(mid, max);
 	}
 	
 	else{
@@ -112,13 +127,23 @@ void paint(treePointer now, int left, int right, char color){
 		return;
 	}
 	
-	if(left <= now->min && right >= now->max){
+	if(left == now->min && right == now->max){
+		now->color = color;
+		if((now->max-now->min) > 1){
+			paint(now->left, left, now->left->max, color);
+			paint(now->right, now->right->min, right, color);
+		}
+		
+		return;
+	}
+	
+	/*if(left <= now->min && right >= now->max){
 		now->color = color;
 		if((now->max-now->min) > 1){
 			now->lazy = 1;
 		}
 		return;
-	}
+	}*/
 	
 	if(now->lazy == 1){		//push down
 		now->left->color = now->color;
@@ -146,7 +171,22 @@ void paint(treePointer now, int left, int right, char color){
 }
 
 void query(treePointer now, int left, int right){
-	printf("query\n");
+	//printf("query\n");
+	
+	/*
+	if(now->lazy == 1){
+		now->left->color = now->color;
+		now->right->color = now->color;
+		
+		now->lazy = 0;
+		
+		if((now->left->max-now->left->min) > 1){
+			now->left->lazy = 1;
+		}
+		if((now->right->max-now->right->min) > 1){
+			now->right->lazy = 1;
+		}
+	}*/
 	
 	if(right <= left || now->min >= right || now->max <= left){
 		return;
@@ -161,16 +201,14 @@ void query(treePointer now, int left, int right){
 		}
 		
 		else{
-			printf("color = %c\n", now->color);
+			//printf("color = %c\n", now->color);
+			output[top] = now->color;
+			top++;
 		}
 		
 		return;
 	}
 	
-	if(now->lazy == 1){
-		now->left->color = now->color;
-		now->right->color = now->color;
-	}
 	
 	if(right < now->left->max){		//只找左邊
 		query(now->left, left, right); 
