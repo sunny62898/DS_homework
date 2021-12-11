@@ -8,6 +8,8 @@ int main(){
 	FILE *fp;
 	fp = fopen("input_3.txt", "r");		//∂}¿…
 	
+	
+	
 	int wallSize, comNum;
 	int i, j;
 	
@@ -70,7 +72,6 @@ int main(){
 			/*ºg§Joutput*/
 			FILE *fout;
 			fout = fopen("output_3.txt", "a");  //∂}¿…
-			
 			for(j = 0;j < top;j++){
 				fprintf(fout, "%c ", outputColor[j]);
 			}
@@ -82,6 +83,7 @@ int main(){
 		
 	}
 	
+	fclose(fp);
 	
 	
 	system("pause");
