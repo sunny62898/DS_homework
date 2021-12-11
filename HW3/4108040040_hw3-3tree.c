@@ -34,7 +34,7 @@ int main(){
 	//建立初始空白牆
 	head = init(0, wallSize);
 	
-	//preorder(head);
+
 	
 	int i;
 	char ch;
@@ -58,7 +58,7 @@ int main(){
 			
 			paint(head, start, end, color);		//塗色 
 			
-			
+			preorder(head);
 			
 		}
 		
@@ -87,7 +87,7 @@ treePointer init(int min, int max){
 	}
 	
 	treePointer node = (treePointer)malloc(sizeof(struct treeNode));
-	node->color = '_';
+	node->color = '_';		//全部填入空白 
 	node->lazy = 0;
 	node->max = max;
 	node->min = min;
@@ -107,11 +107,83 @@ treePointer init(int min, int max){
 }
 
 void paint(treePointer now, int left, int right, char color){
-	printf("paint\n");
+	
+	if(right <= left || now->min >= right || now->max <= left){
+		return;
+	}
+	
+	if(left <= now->min && right >= now->max){
+		now->color = color;
+		if((now->max-now->min) > 1){
+			now->lazy = 1;
+		}
+		return;
+	}
+	
+	if(now->lazy == 1){		//push down
+		now->left->color = now->color;
+		now->right->color = now->color;
+	}
+	
+	if(right < now->left->max){		//只找左邊
+		paint(now->left, left, right, color); 
+	}
+	else if(left >= now->right->min){	//只找右邊 
+		paint(now->right, left, right, color);
+	}
+	else{
+		paint(now->left, left, now->left->max, color);
+		paint(now->right, now->right->min, right, color);
+	}
+	
+	
+	if(now->left->color != now->right->color || now->left->color == '@' || now->right->color == '@'){
+		now->color = '@';	//兩邊color不一樣 
+	}
+	
+	
+	
 }
 
 void query(treePointer now, int left, int right){
 	printf("query\n");
+	
+	if(right <= left || now->min >= right || now->max <= left){
+		return;
+	}
+	
+	if(left <= now->min && right >= now->max){
+		if(now->color == '@'){	//左右兩邊不一樣
+			//繼續往下查
+			query(now->left, left, now->left->max);
+			query(now->right, now->right->min, right);
+			
+		}
+		
+		else{
+			printf("color = %c\n", now->color);
+		}
+		
+		return;
+	}
+	
+	if(now->lazy == 1){
+		now->left->color = now->color;
+		now->right->color = now->color;
+	}
+	
+	if(right < now->left->max){		//只找左邊
+		query(now->left, left, right); 
+	}
+	else if(left >= now->right->min){	//只找右邊 
+		query(now->right, left, right);
+	}
+	else{
+		query(now->left, left, now->left->max);
+		query(now->right, now->min, right);
+	}
+	
+	
 }
 
 
@@ -121,7 +193,7 @@ void preorder(treePointer now){
 	if(now == NULL){
 		return;
 	}
-	printf("%c\n", now->color);
+	printf("%d %d %c lazy = %d\n", now->min, now->max, now->color, now->lazy);
 	
 	preorder(now->left);
 	preorder(now->right);
