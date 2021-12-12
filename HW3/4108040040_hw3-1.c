@@ -186,6 +186,7 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 	
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	
+	treePointer parent = NULL;
 	now = head;
 	
 	while(1){
@@ -235,8 +236,21 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 					
 				}
 				else{
-					now = NULL;		//刪自己就好
-					
+					if(parent != NULL){
+						if(parent->left == now){
+							parent->left = NULL;
+							free(now);
+						}
+						else{
+							parent->right = NULL;
+							free(now);
+						}
+					}
+					else{
+						free(head);		//刪自己就好
+						head = NULL;
+						return head;
+					}
 				}
 			}
 			
@@ -245,10 +259,12 @@ treePointer delFun(treePointer head, int number){	//刪除節點
 		}
 		
 		else if(number > now->data){
+			parent = now;
 			now = now->right;
 		}
 		
 		else if(number < now->data){
+			parent = now;
 			now = now->left;
 		}
 		
@@ -298,19 +314,19 @@ void maxSum(treePointer head, int number1, int number2){	//最大和
 	treePointer now = (treePointer)malloc(sizeof(struct treeNode));	//建立now 
 	now = head;
 	
-	
-	
 	//如果同時大或同時小的話就將now一起往右移或左移
 	//如果一大一小就從那個now開始找 
 	
 	if(number1 == number2){
 		
-		/*寫入output*/
-		FILE *fout;
-		fout = fopen("output_1.txt", "a");  //開檔
-		fprintf(fout, "%d\n", number1);
-			
-		fclose(fout);
+		if(number1 >= 0){
+			/*寫入output*/
+			FILE *fout;
+			fout = fopen("output_1.txt", "a");  //開檔
+			fprintf(fout, "%d\n", number1);
+				
+			fclose(fout);
+		}
 		
 		return;
 	}
@@ -352,7 +368,7 @@ treePointer findLeftMax(treePointer now){	//找左邊最大的上一個
 	return now;
 }
 
-treePointer findRightMax(treePointer now){	//找左邊最大的上一個 
+treePointer findRightMax(treePointer now){	//找右邊最小的上一個 
 	
 	if(now->left != NULL){
 		while(now->left->left != NULL){
@@ -434,12 +450,15 @@ void search(treePointer now, int num1, int num2){
 	if(find1 == 1 && find2 == 1){
 		int sum = road1 + road2;
 		
+		
 		/*寫入output*/
 		FILE *fout;
 		fout = fopen("output_1.txt", "a");  //開檔
 		fprintf(fout, "%d\n", sum);
 			
 		fclose(fout);
+		
+		
 		
 	}
 	
