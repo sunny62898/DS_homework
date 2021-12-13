@@ -317,20 +317,6 @@ void maxSum(treePointer head, int number1, int number2){	//最大和
 	//如果同時大或同時小的話就將now一起往右移或左移
 	//如果一大一小就從那個now開始找 
 	
-	if(number1 == number2){
-		
-		if(number1 >= 0){
-			/*寫入output*/
-			FILE *fout;
-			fout = fopen("output_1.txt", "a");  //開檔
-			fprintf(fout, "%d\n", number1);
-				
-			fclose(fout);
-		}
-		
-		return;
-	}
-	
 	while(1){
 		
 		if(number1 < now->data && number2 < now->data){

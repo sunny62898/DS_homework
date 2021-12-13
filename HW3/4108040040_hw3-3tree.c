@@ -6,13 +6,12 @@ typedef struct treeNode{
 	int min;	//顏色塗到 min <= x < max 
 	int max;
 	char color;
-	int lazy;	//紀錄有無懶惰(要將data push下去)
+	int lazy;
 	treePointer right;
 	treePointer left; 
 };
 
 treePointer init(int, int);
-void preorder(treePointer);
 void paint(treePointer, int, int, char);
 void query(treePointer, int, int);
 
@@ -27,8 +26,6 @@ int main(){
 	int wallSize, comNum;
 	fscanf(fp, "%d", &wallSize);
 	fscanf(fp, "%d", &comNum);
-	
-	//printf("%d %d\n", wallSize, comNum);
 	
 	treePointer head = NULL;
 	
@@ -56,11 +53,8 @@ int main(){
 			fscanf(fp, "%d", &end);
 			fscanf(fp, "%c", &ch);
 			fscanf(fp, "%c", &color);
-			//printf("%d %d %c\n", start, end, color);
 			
 			paint(head, start, end, color);		//塗色 
-			
-			//preorder(head);
 			
 		}
 		
@@ -68,22 +62,26 @@ int main(){
 			fscanf(fp, "%d", &start);
 			fscanf(fp, "%d", &end);
 			
-			//printf("%d %d\n", start, end);
-			
 			top = 0;
 			query(head, start, end);	//查詢顏色 
+			
+			//寫檔
+			FILE *fout;
+			fout = fopen("output_3.txt", "a"); 
 			
 			for(j = 0;j < top;j++){
 				if(j > 0){
 					if(output[j] != output[j-1]){
-						printf("%c ", output[j]);
+						fprintf(fout, "%c ", output[j]);
 					}
 				}
 				else{
-					printf("%c ", output[j]);
+					fprintf(fout, "%c ", output[j]);
 				}
 			}
-			printf("\n");
+			fprintf(fout, "\n");
+			
+			fclose(fout);
 		}
 		
 	}
@@ -123,32 +121,32 @@ treePointer init(int min, int max){
 
 void paint(treePointer now, int left, int right, char color){
 	
-	if(right <= left || now->min >= right || now->max <= left){
+	if(right <= left || now->min > right || now->max < left){
 		return;
 	}
 	
-	if(left == now->min && right == now->max){
-		now->color = color;
-		if((now->max-now->min) > 1){
-			paint(now->left, left, now->left->max, color);
-			paint(now->right, now->right->min, right, color);
+	
+	if(now->lazy == 1){
+		now->left->color = now->color;
+		if((now->left->max-now->left->min) > 1){
+			now->left->lazy = 1;
 		}
-		
-		return;
+		now->right->color = now->color;
+		if((now->right->max-now->right->min) > 1){
+			now->right->lazy = 1;
+		}
+		now->lazy = 0;
 	}
 	
-	/*if(left <= now->min && right >= now->max){
+	if(left <= now->min && right >= now->max){
 		now->color = color;
+		
 		if((now->max-now->min) > 1){
 			now->lazy = 1;
 		}
 		return;
-	}*/
-	
-	if(now->lazy == 1){		//push down
-		now->left->color = now->color;
-		now->right->color = now->color;
 	}
+	
 	
 	if(right < now->left->max){		//只找左邊
 		paint(now->left, left, right, color); 
@@ -171,26 +169,24 @@ void paint(treePointer now, int left, int right, char color){
 }
 
 void query(treePointer now, int left, int right){
-	//printf("query\n");
 	
-	/*
-	if(now->lazy == 1){
-		now->left->color = now->color;
-		now->right->color = now->color;
-		
-		now->lazy = 0;
-		
-		if((now->left->max-now->left->min) > 1){
-			now->left->lazy = 1;
-		}
-		if((now->right->max-now->right->min) > 1){
-			now->right->lazy = 1;
-		}
-	}*/
 	
 	if(right <= left || now->min >= right || now->max <= left){
 		return;
 	}
+
+	if(now->lazy == 1){
+		now->left->color = now->color;
+		if((now->left->max-now->left->min) > 1){
+			now->left->lazy = 1;
+		}
+		now->right->color = now->color;
+		if((now->right->max-now->right->min) > 1){
+			now->right->lazy = 1;
+		}
+		now->lazy = 0;
+	}
+	
 	
 	if(left <= now->min && right >= now->max){
 		if(now->color == '@'){	//左右兩邊不一樣
@@ -201,7 +197,6 @@ void query(treePointer now, int left, int right){
 		}
 		
 		else{
-			//printf("color = %c\n", now->color);
 			output[top] = now->color;
 			top++;
 		}
@@ -213,7 +208,7 @@ void query(treePointer now, int left, int right){
 	if(right < now->left->max){		//只找左邊
 		query(now->left, left, right); 
 	}
-	else if(left >= now->right->min){	//只找右邊 
+	else if(left > now->right->min){	//只找右邊 
 		query(now->right, left, right);
 	}
 	else{
@@ -225,15 +220,3 @@ void query(treePointer now, int left, int right){
 }
 
 
-
-
-void preorder(treePointer now){
-	if(now == NULL){
-		return;
-	}
-	printf("%d %d %c lazy = %d\n", now->min, now->max, now->color, now->lazy);
-	
-	preorder(now->left);
-	preorder(now->right);
-	
-}
