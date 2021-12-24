@@ -82,7 +82,7 @@ int main(){
 	}
 	printf("\n");
 	
-	
+	fclose(fp);
 	system("pause");
 	return 0;
 }
