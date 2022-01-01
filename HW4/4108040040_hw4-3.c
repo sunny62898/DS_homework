@@ -20,6 +20,13 @@ struct colorNode{
 };
 
 void createMap(struct headNode*, int, int);
+int findMaxArea(struct headNode*, int);
+int findColor(struct colorNode*, int, int);
+void paintArea(nodePointer, int*);
+void leftColor(struct headNode*, struct colorNode*, int*, int, int);
+int chooseArea(struct headNode*, int*, int, int);
+void paintBeside(struct headNode*, struct colorNode*, int*, int, int);
+int chooseBeside(struct headNode*, int*, int);
 void testPrint(struct headNode*, int);
 
 
@@ -62,6 +69,7 @@ int main(){
 	
 	/*各顏色的數量及成本*/ 
 	struct colorNode color[listNum];
+	struct colorNode* colorPointer = &color;
 	char ch0, ch1, ch2;	//讀掉多餘的char 
 	for(i = 0;i < listNum;i++){
 		fscanf(fp, "%c%c%c", &ch0, &ch1, &ch2);
@@ -80,10 +88,48 @@ int main(){
 		假如有那就找完全沒有交集的區域(找之中最大且可以夠填的)填上顏色
 		假如顏色已經填完且沒有符合的顏色可以填(color中的noOther設為1) 
 		那就再找下一個面積最大的來填入其他顏色 
-	*/ 
+	*/
+	/*建立部接下來要填的array*/ 
+	int areaFull[areaNum+1];
+	int maxArea;
+	int inputColor;
 	
+	while(1){
+		//找最大面積
+		maxArea = findMaxArea(areaPointer, areaNum+1);
+		
+		if(maxArea == 0){	//所有點都被填過顏色了 
+			break;
+		}
+		
+		
+		
+		inputColor = findColor(colorPointer, area[maxArea].size, listNum);
+		area[maxArea].color = inputColor;
+		color[inputColor].number = color[inputColor].number - area[maxArea].size;
+		
+		/*先將不相鄰的填入剩餘的相同顏色*/
+		//先選不相鄰中最大的且可填入的
+		
+		/*建立不相鄰且沒填過的array*/
+		for(i = 0;i < areaNum+1;i++){
+			areaFull[i] = 1;	//初始值為1 如果遇相鄰的為0(不是接下來要填的) 
+		}
 	
+		paintArea(area[maxArea].beside, &areaFull);
+		
+		leftColor(area, color, &areaFull, inputColor, areaNum+1);
+		paintBeside(area, color, &areaFull, areaNum+1, listNum);
+		
+	}
 	
+	//計算答案
+	int ans = 0; 
+	for(i = 1;i < areaNum+1;i++){
+		//printf("%d = %d\n", i, area[i].color);
+		ans = ans + (area[i].size * color[area[i].color].cost);
+	}
+	printf("%d\n", ans);
 	
 	system("pause");
 	return 0;
@@ -119,6 +165,122 @@ void createMap(struct headNode* array, int num1, int num2){
 	}
 	
 }
+
+int findMaxArea(struct headNode* array, int num){
+	int i;
+	int max = 0;
+	for(i = 1;i < num;i++){
+		if(array[max].size < array[i].size && array[i].color == -1){
+			
+			max = i;
+		}
+	}
+	
+	return max;
+	
+}
+
+int findColor(struct colorNode* array, int areaSize, int num){
+	int i;
+	int color = -1;
+	
+	for(i = 0;i < num;i++){
+		if(array[i].noOther != 1 && array[i].number >= areaSize){
+			if(color == -1){	//還沒有符合的color 
+				color = i;
+			}
+			else{
+				//選cost小的 
+				if(array[color].cost > array[i].cost){
+					color = i;
+				}
+			}
+		}
+	}
+	return color;
+}
+
+void paintArea(nodePointer now, int* area){
+	while(now != NULL){
+		area[now->number] = 0;	//為相鄰的
+		now = now->next; 
+	}
+}
+
+void leftColor(struct headNode* area, struct colorNode* color, int* noBeside, int Cnum, int Nnum){
+	int i;
+	int bePaint = 0;
+	while(1){
+		bePaint = chooseArea(area, noBeside, color[Cnum].number, Nnum);
+		if(bePaint == 0){
+			color[Cnum].noOther = 1;
+			break;
+		}
+		
+		noBeside[bePaint] = 0;	//設為填過
+		area[bePaint].color = Cnum;	//填入顏色
+		color[Cnum].number = color[Cnum].number - area[bePaint].size;
+		
+		if(color[Cnum].number == 0){
+			color[Cnum].noOther = 1;
+			break;
+		} 
+		
+	}
+}
+
+int chooseArea(struct headNode* area, int* noBeside, int remain, int Nnum){
+	int i;
+	int choose = 0;
+	for(i = 1;i < Nnum;i++){
+		if(noBeside[i] == 1){
+			if(area[i].size <= remain){
+				if(choose == 0){
+					choose = i;
+				}
+				else{
+					if(area[i].size > area[choose].size){
+						choose = i;
+					}
+				}
+			}
+		}
+	}
+	return choose;
+}
+
+void paintBeside(struct headNode* area, struct colorNode* color, int* noBeside, int Nnum, int Cnum){
+	/*從最大的開始填*/
+	int maxArea = 0;
+	int inputColor = 0;
+	while(1){
+		maxArea = chooseBeside(area, noBeside, Nnum);
+		if(maxArea == 0){
+			break;
+		}
+		inputColor = findColor(color, area[maxArea].size, Cnum);
+		
+		noBeside[maxArea] = 0;
+		area[maxArea].color = inputColor;
+		color[inputColor].number = color[inputColor].number - area[maxArea].size;
+		
+	}
+}
+
+int chooseBeside(struct headNode* area, int* array, int Nnum){
+	int i;
+	int max = 0;
+	for(i = 1;i < Nnum;i++){
+		if(array[i] == 1 && area[i].color == -1){
+			if(area[i].size > area[max].size){
+				max = i;
+			}
+		}
+	}
+	return max;
+}
+
+
 
 void testPrint(struct headNode* array, int num){
 	int i;
