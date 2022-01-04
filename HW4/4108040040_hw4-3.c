@@ -23,8 +23,6 @@ void createMap(struct headNode*, int, int);
 int findMaxArea(struct headNode*, int);
 int findColor(struct colorNode*, int, int);
 void paintArea(nodePointer, int*);
-void leftColor(struct headNode*, struct colorNode*, int*, int, int);
-int chooseArea(struct headNode*, int*, int, int);
 void paintBeside(struct headNode*, struct colorNode*, int*, int, int);
 int chooseBeside(struct headNode*, int*, int);
 void testPrint(struct headNode*, int);
@@ -102,8 +100,6 @@ int main(){
 			break;
 		}
 		
-		
-		
 		inputColor = findColor(colorPointer, area[maxArea].size, listNum);
 		area[maxArea].color = inputColor;
 		color[inputColor].number = color[inputColor].number - area[maxArea].size;
@@ -118,8 +114,8 @@ int main(){
 	
 		paintArea(area[maxArea].beside, &areaFull);
 		
-		leftColor(area, color, &areaFull, inputColor, areaNum+1);
 		paintBeside(area, color, &areaFull, areaNum+1, listNum);
+		color[inputColor].noOther = 1;
 		
 	}
 	
@@ -205,48 +201,6 @@ void paintArea(nodePointer now, int* area){
 		area[now->number] = 0;	//為相鄰的
 		now = now->next; 
 	}
-}
-
-void leftColor(struct headNode* area, struct colorNode* color, int* noBeside, int Cnum, int Nnum){
-	int i;
-	int bePaint = 0;
-	while(1){
-		bePaint = chooseArea(area, noBeside, color[Cnum].number, Nnum);
-		if(bePaint == 0){
-			color[Cnum].noOther = 1;
-			break;
-		}
-		
-		noBeside[bePaint] = 0;	//設為填過
-		area[bePaint].color = Cnum;	//填入顏色
-		color[Cnum].number = color[Cnum].number - area[bePaint].size;
-		
-		if(color[Cnum].number == 0){
-			color[Cnum].noOther = 1;
-			break;
-		} 
-		
-	}
-}
-
-int chooseArea(struct headNode* area, int* noBeside, int remain, int Nnum){
-	int i;
-	int choose = 0;
-	for(i = 1;i < Nnum;i++){
-		if(noBeside[i] == 1){
-			if(area[i].size <= remain){
-				if(choose == 0){
-					choose = i;
-				}
-				else{
-					if(area[i].size > area[choose].size){
-						choose = i;
-					}
-				}
-			}
-		}
-	}
-	return choose;
 }
 
 void paintBeside(struct headNode* area, struct colorNode* color, int* noBeside, int Nnum, int Cnum){
